@@ -9,8 +9,8 @@
  * with this source code in the file LICENSE.
  */
 
-use Overtrue\Socialite\AccessToken;
-use Overtrue\Socialite\User;
+use Wenprise\Socialite\AccessToken;
+use Wenprise\Socialite\User;
 use PHPUnit\Framework\TestCase;
 
 class UserTest extends TestCase

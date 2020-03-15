@@ -9,11 +9,11 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Overtrue\Socialite\Providers;
+namespace Wenprise\Socialite\Providers;
 
-use Overtrue\Socialite\AccessTokenInterface;
-use Overtrue\Socialite\ProviderInterface;
-use Overtrue\Socialite\User;
+use Wenprise\Socialite\AccessTokenInterface;
+use Wenprise\Socialite\ProviderInterface;
+use Wenprise\Socialite\User;
 
 /**
  * Class FacebookProvider.
@@ -78,15 +78,15 @@ class FacebookProvider extends AbstractProvider implements ProviderInterface
      *
      * @param string $code
      *
-     * @return \Overtrue\Socialite\AccessToken
+     * @return \Wenprise\Socialite\AccessToken
      */
     public function getAccessToken($code)
     {
-        $response = $this->getHttpClient()->get($this->getTokenUrl(), [
-            'query' => $this->getTokenFields($code),
+        $response = wp_remote_get($this->getTokenUrl(), [
+            'body' => $this->getTokenFields($code),
         ]);
 
-        return $this->parseAccessToken($response->getBody());
+        return $this->parseAccessToken(wp_remote_retrieve_body($response));
     }
 
     /**
@@ -96,13 +96,13 @@ class FacebookProvider extends AbstractProvider implements ProviderInterface
     {
         $appSecretProof = hash_hmac('sha256', $token->getToken(), $this->clientSecret);
 
-        $response = $this->getHttpClient()->get($this->graphUrl.'/'.$this->version.'/me?access_token='.$token.'&appsecret_proof='.$appSecretProof.'&fields='.implode(',', $this->fields), [
+        $response = wp_remote_get($this->graphUrl.'/'.$this->version.'/me?access_token='.$token.'&appsecret_proof='.$appSecretProof.'&fields='.implode(',', $this->fields), [
             'headers' => [
                 'Accept' => 'application/json',
             ],
         ]);
 
-        return json_decode($response->getBody(), true);
+        return json_decode(wp_remote_retrieve_body($response), true);
     }
 
     /**

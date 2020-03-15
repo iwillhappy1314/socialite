@@ -10,9 +10,9 @@
  */
 
 use Mockery as m;
-use Overtrue\Socialite\AccessTokenInterface;
-use Overtrue\Socialite\Providers\AbstractProvider;
-use Overtrue\Socialite\User;
+use Wenprise\Socialite\AccessTokenInterface;
+use Wenprise\Socialite\Providers\AbstractProvider;
+use Wenprise\Socialite\User;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -66,12 +66,12 @@ class OAuthTest extends TestCase
         $response->shouldReceive('getBody')->once()->andReturn('{"access_token":"access_token"}');
         $user = $provider->user();
 
-        $this->assertInstanceOf('Overtrue\Socialite\User', $user);
+        $this->assertInstanceOf('Wenprise\Socialite\User', $user);
         $this->assertSame('foo', $user->getId());
     }
 
     /**
-     * @expectedException \Overtrue\Socialite\InvalidStateException
+     * @expectedException \Wenprise\Socialite\InvalidStateException
      */
     public function testExceptionIsThrownIfStateIsInvalid()
     {
@@ -83,7 +83,7 @@ class OAuthTest extends TestCase
     }
 
     /**
-     * @expectedException \Overtrue\Socialite\AuthorizeFailedException
+     * @expectedException \Wenprise\Socialite\AuthorizeFailedException
      * @expectedExceptionMessage Authorize Failed: {"error":"scope is invalid"}
      */
     public function testExceptionisThrownIfAuthorizeFailed()
@@ -101,7 +101,7 @@ class OAuthTest extends TestCase
     }
 
     /**
-     * @expectedException \Overtrue\Socialite\InvalidStateException
+     * @expectedException \Wenprise\Socialite\InvalidStateException
      */
     public function testExceptionIsThrownIfStateIsNotSet()
     {

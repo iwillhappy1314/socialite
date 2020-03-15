@@ -1,11 +1,11 @@
 <?php
 
-namespace Overtrue\Socialite\Providers;
+namespace Wenprise\Socialite\Providers;
 
-use Overtrue\Socialite\AccessToken;
-use Overtrue\Socialite\AccessTokenInterface;
-use Overtrue\Socialite\ProviderInterface;
-use Overtrue\Socialite\User;
+use Wenprise\Socialite\AccessToken;
+use Wenprise\Socialite\AccessTokenInterface;
+use Wenprise\Socialite\ProviderInterface;
+use Wenprise\Socialite\User;
 
 /**
  * Class DouYinProvider.
@@ -78,15 +78,15 @@ class DouYinProvider extends AbstractProvider implements ProviderInterface
      *
      * @param string $code
      *
-     * @return \Overtrue\Socialite\AccessToken
+     * @return \Wenprise\Socialite\AccessToken
      */
     public function getAccessToken($code)
     {
-        $response = $this->getHttpClient()->get($this->getTokenUrl(), [
+        $response = wp_remote_get($this->getTokenUrl(), [
             'query' => $this->getTokenFields($code),
         ]);
 
-        return $this->parseAccessToken($response->getBody()->getContents());
+        return $this->parseAccessToken(wp_remote_retrieve_body($response));
     }
 
     /**
@@ -111,7 +111,7 @@ class DouYinProvider extends AbstractProvider implements ProviderInterface
      *
      * @param \Psr\Http\Message\StreamInterface|array $body
      *
-     * @return \Overtrue\Socialite\AccessTokenInterface
+     * @return \Wenprise\Socialite\AccessTokenInterface
      */
     protected function parseAccessToken($body)
     {
@@ -137,7 +137,7 @@ class DouYinProvider extends AbstractProvider implements ProviderInterface
     {
         $userUrl = $this->baseUrl.'/oauth/userinfo/';
 
-        $response = $this->getHttpClient()->get(
+        $response = wp_remote_get(
             $userUrl, [
                 'query' => [
                     'access_token' => $token->getToken(),
@@ -146,7 +146,7 @@ class DouYinProvider extends AbstractProvider implements ProviderInterface
             ]
         );
 
-        return json_decode($response->getBody(), true);
+        return json_decode(wp_remote_retrieve_body($response), true);
     }
 
     /**

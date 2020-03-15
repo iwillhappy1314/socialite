@@ -9,11 +9,11 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Overtrue\Socialite\Providers;
+namespace Wenprise\Socialite\Providers;
 
-use Overtrue\Socialite\AccessTokenInterface;
-use Overtrue\Socialite\ProviderInterface;
-use Overtrue\Socialite\User;
+use Wenprise\Socialite\AccessTokenInterface;
+use Wenprise\Socialite\ProviderInterface;
+use Wenprise\Socialite\User;
 
 /**
  * Class DoubanProvider.
@@ -43,13 +43,13 @@ class DoubanProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getUserByToken(AccessTokenInterface $token)
     {
-        $response = $this->getHttpClient()->get('https://api.douban.com/v2/user/~me', [
+        $response = wp_remote_get('https://api.douban.com/v2/user/~me', [
             'headers' => [
                 'Authorization' => 'Bearer '.$token->getToken(),
             ],
         ]);
 
-        return json_decode($response->getBody()->getContents(), true);
+        return json_decode(wp_remote_retrieve_body($response), true);
     }
 
     /**
@@ -79,10 +79,10 @@ class DoubanProvider extends AbstractProvider implements ProviderInterface
      */
     public function getAccessToken($code)
     {
-        $response = $this->getHttpClient()->post($this->getTokenUrl(), [
+        $response = wp_remote_post($this->getTokenUrl(), [
             'form_params' => $this->getTokenFields($code),
         ]);
 
-        return $this->parseAccessToken($response->getBody()->getContents());
+        return $this->parseAccessToken(wp_remote_retrieve_body($response));
     }
 }

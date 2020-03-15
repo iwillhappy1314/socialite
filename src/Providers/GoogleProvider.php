@@ -9,12 +9,11 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Overtrue\Socialite\Providers;
+namespace Wenprise\Socialite\Providers;
 
-use GuzzleHttp\ClientInterface;
-use Overtrue\Socialite\AccessTokenInterface;
-use Overtrue\Socialite\ProviderInterface;
-use Overtrue\Socialite\User;
+use Wenprise\Socialite\AccessTokenInterface;
+use Wenprise\Socialite\ProviderInterface;
+use Wenprise\Socialite\User;
 
 /**
  * Class GoogleProvider.
@@ -65,13 +64,11 @@ class GoogleProvider extends AbstractProvider implements ProviderInterface
      */
     public function getAccessToken($code)
     {
-        $postKey = (1 === version_compare(ClientInterface::VERSION, '6')) ? 'form_params' : 'body';
-
-        $response = $this->getHttpClient()->post($this->getTokenUrl(), [
-            $postKey => $this->getTokenFields($code),
+        $response = wp_remote_post($this->getTokenUrl(), [
+            'body' => $this->getTokenFields($code),
         ]);
 
-        return $this->parseAccessToken($response->getBody());
+        return $this->parseAccessToken(wp_remote_retrieve_body($response));
     }
 
     /**
@@ -91,14 +88,14 @@ class GoogleProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getUserByToken(AccessTokenInterface $token)
     {
-        $response = $this->getHttpClient()->get('https://www.googleapis.com/userinfo/v2/me', [
+        $response = wp_remote_get('https://www.googleapis.com/userinfo/v2/me', [
             'headers' => [
                 'Accept' => 'application/json',
                 'Authorization' => 'Bearer '.$token->getToken(),
             ],
         ]);
 
-        return json_decode($response->getBody(), true);
+        return json_decode(wp_remote_retrieve_body($response), true);
     }
 
     /**

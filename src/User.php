@@ -9,7 +9,7 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Overtrue\Socialite;
+namespace Wenprise\Socialite;
 
 use ArrayAccess;
 use JsonSerializable;
@@ -94,7 +94,7 @@ class User implements ArrayAccess, UserInterface, JsonSerializable, \Serializabl
     /**
      * Set the token on the user.
      *
-     * @param \Overtrue\Socialite\AccessTokenInterface $token
+     * @param \Wenprise\Socialite\AccessTokenInterface $token
      *
      * @return $this
      */
@@ -128,7 +128,7 @@ class User implements ArrayAccess, UserInterface, JsonSerializable, \Serializabl
     /**
      * Get the authorized token.
      *
-     * @return \Overtrue\Socialite\AccessToken
+     * @return \Wenprise\Socialite\AccessToken
      */
     public function getToken()
     {
@@ -138,7 +138,7 @@ class User implements ArrayAccess, UserInterface, JsonSerializable, \Serializabl
     /**
      * Alias of getToken().
      *
-     * @return \Overtrue\Socialite\AccessToken
+     * @return \Wenprise\Socialite\AccessToken
      */
     public function getAccessToken()
     {

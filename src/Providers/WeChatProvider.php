@@ -9,13 +9,13 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Overtrue\Socialite\Providers;
+namespace Wenprise\Socialite\Providers;
 
-use Overtrue\Socialite\AccessTokenInterface;
-use Overtrue\Socialite\InvalidArgumentException;
-use Overtrue\Socialite\ProviderInterface;
-use Overtrue\Socialite\User;
-use Overtrue\Socialite\WeChatComponentInterface;
+use Wenprise\Socialite\AccessTokenInterface;
+use Wenprise\Socialite\InvalidArgumentException;
+use Wenprise\Socialite\ProviderInterface;
+use Wenprise\Socialite\User;
+use Wenprise\Socialite\WeChatComponentInterface;
 
 /**
  * Class WeChatProvider.

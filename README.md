@@ -33,7 +33,7 @@ For Laravel 5: [overtrue/laravel-socialite](https://github.com/overtrue/laravel-
 ```php
 <?php
 
-use Overtrue\Socialite\SocialiteManager;
+use Wenprise\Socialite\SocialiteManager;
 
 $config = [
     'github' => [
@@ -55,7 +55,7 @@ echo $response;// or $response->send();
 ```php
 <?php
 
-use Overtrue\Socialite\SocialiteManager;
+use Wenprise\Socialite\SocialiteManager;
 
 $config = [
     'github' => [

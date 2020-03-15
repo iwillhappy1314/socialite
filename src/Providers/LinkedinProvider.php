@@ -9,11 +9,11 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Overtrue\Socialite\Providers;
+namespace Wenprise\Socialite\Providers;
 
-use Overtrue\Socialite\AccessTokenInterface;
-use Overtrue\Socialite\ProviderInterface;
-use Overtrue\Socialite\User;
+use Wenprise\Socialite\AccessTokenInterface;
+use Wenprise\Socialite\ProviderInterface;
+use Wenprise\Socialite\User;
 
 /**
  * Class LinkedinProvider.
@@ -42,7 +42,7 @@ class LinkedinProvider extends AbstractProvider implements ProviderInterface
      *
      * @param string $code
      *
-     * @return \Overtrue\Socialite\AccessToken
+     * @return \Wenprise\Socialite\AccessToken
      */
     public function getAccessToken($code)
     {

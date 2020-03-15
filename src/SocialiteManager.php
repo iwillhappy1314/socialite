@@ -9,12 +9,11 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Overtrue\Socialite;
+namespace Wenprise\Socialite;
 
 use Closure;
 use InvalidArgumentException;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Session\Session;
+
 
 /**
  * Class SocialiteManager.
@@ -24,7 +23,7 @@ class SocialiteManager implements FactoryInterface
     /**
      * The configuration.
      *
-     * @var \Overtrue\Socialite\Config
+     * @var \Wenprise\Socialite\Config
      */
     protected $config;
 
@@ -73,9 +72,9 @@ class SocialiteManager implements FactoryInterface
      * SocialiteManager constructor.
      *
      * @param array        $config
-     * @param Request|null $request
+     * @param mixed|null $request
      */
-    public function __construct(array $config, Request $request = null)
+    public function __construct(array $config, $request = null)
     {
         $this->config = new Config($config);
 
@@ -91,7 +90,7 @@ class SocialiteManager implements FactoryInterface
     /**
      * Set config instance.
      *
-     * @param \Overtrue\Socialite\Config $config
+     * @param \Wenprise\Socialite\Config $config
      *
      * @return $this
      */
@@ -119,11 +118,11 @@ class SocialiteManager implements FactoryInterface
     }
 
     /**
-     * @param \Symfony\Component\HttpFoundation\Request $request
+     * @param $request
      *
      * @return $this
      */
-    public function setRequest(Request $request)
+    public function setRequest( $request)
     {
         $this->request = $request;
 
@@ -131,7 +130,7 @@ class SocialiteManager implements FactoryInterface
     }
 
     /**
-     * @return \Symfony\Component\HttpFoundation\Request
+     * @return
      */
     public function getRequest()
     {
@@ -178,11 +177,11 @@ class SocialiteManager implements FactoryInterface
     /**
      * Create default request instance.
      *
-     * @return Request
+     * @return
      */
     protected function createDefaultRequest()
     {
-        $request = Request::createFromGlobals();
+        $request = WP_HTTP;
         $session = new Session();
 
         $request->setSession($session);

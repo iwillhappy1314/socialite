@@ -9,7 +9,7 @@
  * with this source code in the file LICENSE.
  */
 
-use Overtrue\Socialite\Providers\WeChatProvider as RealWeChatProvider;
+use Wenprise\Socialite\Providers\WeChatProvider as RealWeChatProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -107,7 +107,7 @@ class WeChatProvider extends RealWeChatProvider
     use ProviderTrait;
 }
 
-class WeChatComponent implements \Overtrue\Socialite\WeChatComponentInterface
+class WeChatComponent implements \Wenprise\Socialite\WeChatComponentInterface
 {
     public function getAppId()
     {

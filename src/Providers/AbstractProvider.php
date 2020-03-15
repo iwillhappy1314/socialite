@@ -9,17 +9,14 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Overtrue\Socialite\Providers;
+namespace Wenprise\Socialite\Providers;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\ClientInterface;
-use Overtrue\Socialite\AccessToken;
-use Overtrue\Socialite\AccessTokenInterface;
-use Overtrue\Socialite\AuthorizeFailedException;
-use Overtrue\Socialite\InvalidStateException;
-use Overtrue\Socialite\ProviderInterface;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Request;
+use Wenprise\Socialite\AccessToken;
+use Wenprise\Socialite\AccessTokenInterface;
+use Wenprise\Socialite\AuthorizeFailedException;
+use Wenprise\Socialite\InvalidStateException;
+use Wenprise\Socialite\ProviderInterface;
+
 
 /**
  * Class AbstractProvider.
@@ -35,8 +32,6 @@ abstract class AbstractProvider implements ProviderInterface
 
     /**
      * The HTTP request instance.
-     *
-     * @var \Symfony\Component\HttpFoundation\Request
      */
     protected $request;
 
@@ -55,7 +50,7 @@ abstract class AbstractProvider implements ProviderInterface
     protected $clientSecret;
 
     /**
-     * @var \Overtrue\Socialite\AccessTokenInterface
+     * @var \Wenprise\Socialite\AccessTokenInterface
      */
     protected $accessToken;
 
@@ -111,17 +106,17 @@ abstract class AbstractProvider implements ProviderInterface
     /**
      * Create a new provider instance.
      *
-     * @param \Symfony\Component\HttpFoundation\Request $request
-     * @param string                                    $clientId
-     * @param string                                    $clientSecret
-     * @param string|null                               $redirectUrl
+     * @param object      $request
+     * @param string      $clientId
+     * @param string      $clientSecret
+     * @param string|null $redirectUrl
      */
-    public function __construct(Request $request, $clientId, $clientSecret, $redirectUrl = null)
+    public function __construct($request, $clientId, $clientSecret, $redirectUrl = null)
     {
-        $this->request = $request;
-        $this->clientId = $clientId;
+        $this->request      = $request;
+        $this->clientId     = $clientId;
         $this->clientSecret = $clientSecret;
-        $this->redirectUrl = $redirectUrl;
+        $this->redirectUrl  = $redirectUrl;
     }
 
     /**
@@ -143,7 +138,7 @@ abstract class AbstractProvider implements ProviderInterface
     /**
      * Get the raw user for the given access token.
      *
-     * @param \Overtrue\Socialite\AccessTokenInterface $token
+     * @param \Wenprise\Socialite\AccessTokenInterface $token
      *
      * @return array
      */
@@ -154,7 +149,7 @@ abstract class AbstractProvider implements ProviderInterface
      *
      * @param array $user
      *
-     * @return \Overtrue\Socialite\User
+     * @return \Wenprise\Socialite\User
      */
     abstract protected function mapUserToObject(array $user);
 
@@ -162,14 +157,12 @@ abstract class AbstractProvider implements ProviderInterface
      * Redirect the user of the application to the provider's authentication screen.
      *
      * @param string $redirectUrl
-     *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function redirect($redirectUrl = null)
     {
         $state = null;
 
-        if (!is_null($redirectUrl)) {
+        if ( ! is_null($redirectUrl)) {
             $this->redirectUrl = $redirectUrl;
         }
 
@@ -177,7 +170,23 @@ abstract class AbstractProvider implements ProviderInterface
             $state = $this->makeState();
         }
 
-        return new RedirectResponse($this->getAuthUrl($state));
+        return $this->getAuthUrl($state);
+    }
+
+
+    public function getAuthRedirectUrl($redirectUrl = null)
+    {
+        $state = null;
+
+        if ( ! is_null($redirectUrl)) {
+            $this->redirectUrl = $redirectUrl;
+        }
+
+        if ($this->usesState()) {
+            $state = $this->makeState();
+        }
+
+        return $this->getAuthUrl($state);
     }
 
     /**
@@ -189,13 +198,15 @@ abstract class AbstractProvider implements ProviderInterface
             throw new InvalidStateException();
         }
 
-        $token = $token ?: $this->getAccessToken($this->getCode());
+        $token = $token ? : $this->getAccessToken($this->getCode());
 
         $user = $this->getUserByToken($token);
 
-        $user = $this->mapUserToObject($user)->merge(['original' => $user]);
+        $user = $this->mapUserToObject($user)
+                     ->merge(['original' => $user]);
 
-        return $user->setToken($token)->setProviderName($this->getName());
+        return $user->setToken($token)
+                    ->setProviderName($this->getName());
     }
 
     /**
@@ -237,7 +248,7 @@ abstract class AbstractProvider implements ProviderInterface
     }
 
     /**
-     * @param \Overtrue\Socialite\AccessTokenInterface $accessToken
+     * @param \Wenprise\Socialite\AccessTokenInterface $accessToken
      *
      * @return $this
      */
@@ -253,7 +264,7 @@ abstract class AbstractProvider implements ProviderInterface
      *
      * @param string $code
      *
-     * @return \Overtrue\Socialite\AccessTokenInterface
+     * @return \Wenprise\Socialite\AccessTokenInterface
      */
     public function getAccessToken($code)
     {
@@ -261,14 +272,12 @@ abstract class AbstractProvider implements ProviderInterface
             return $this->accessToken;
         }
 
-        $postKey = (1 === version_compare(ClientInterface::VERSION, '6')) ? 'form_params' : 'body';
-
-        $response = $this->getHttpClient()->post($this->getTokenUrl(), [
+        $response = wp_remote_post($this->getTokenUrl(), [
             'headers' => ['Accept' => 'application/json'],
-            $postKey => $this->getTokenFields($code),
+            'body'    => $this->getTokenFields($code),
         ]);
 
-        return $this->parseAccessToken($response->getBody());
+        return $this->parseAccessToken(wp_remote_retrieve_body($response));
     }
 
     /**
@@ -288,11 +297,11 @@ abstract class AbstractProvider implements ProviderInterface
     /**
      * Set the request instance.
      *
-     * @param Request $request
+     * @param  $request
      *
      * @return $this
      */
-    public function setRequest(Request $request)
+    public function setRequest($request)
     {
         $this->request = $request;
 
@@ -302,7 +311,7 @@ abstract class AbstractProvider implements ProviderInterface
     /**
      * Get the request instance.
      *
-     * @return \Symfony\Component\HttpFoundation\Request
+     *
      */
     public function getRequest()
     {
@@ -336,9 +345,9 @@ abstract class AbstractProvider implements ProviderInterface
     }
 
     /**
+     * @return string
      * @throws \ReflectionException
      *
-     * @return string
      */
     public function getName()
     {
@@ -359,7 +368,7 @@ abstract class AbstractProvider implements ProviderInterface
      */
     protected function buildAuthUrlFromBase($url, $state)
     {
-        return $url.'?'.http_build_query($this->getCodeFields($state), '', '&', $this->encodingType);
+        return $url . '?' . http_build_query($this->getCodeFields($state), '', '&', $this->encodingType);
     }
 
     /**
@@ -372,14 +381,14 @@ abstract class AbstractProvider implements ProviderInterface
     protected function getCodeFields($state = null)
     {
         $fields = array_merge([
-            'client_id' => $this->clientId,
-            'redirect_uri' => $this->redirectUrl,
-            'scope' => $this->formatScopes($this->scopes, $this->scopeSeparator),
+            'client_id'     => $this->clientId,
+            'redirect_uri'  => $this->redirectUrl,
+            'scope'         => $this->formatScopes($this->scopes, $this->scopeSeparator),
             'response_type' => 'code',
         ], $this->parameters);
 
         if ($this->usesState()) {
-            $fields['state'] = $state;
+            $fields[ 'state' ] = $state;
         }
 
         return $fields;
@@ -409,9 +418,10 @@ abstract class AbstractProvider implements ProviderInterface
             return false;
         }
 
-        $state = $this->request->getSession()->get('state');
+        $state = $this->request->getSession()
+                               ->get('state');
 
-        return !(strlen($state) > 0 && $this->request->get('state') === $state);
+        return ! (strlen($state) > 0 && $this->request->get('state') === $state);
     }
 
     /**
@@ -424,28 +434,28 @@ abstract class AbstractProvider implements ProviderInterface
     protected function getTokenFields($code)
     {
         return [
-            'client_id' => $this->clientId,
+            'client_id'     => $this->clientId,
             'client_secret' => $this->clientSecret,
-            'code' => $code,
-            'redirect_uri' => $this->redirectUrl,
+            'code'          => $code,
+            'redirect_uri'  => $this->redirectUrl,
         ];
     }
 
     /**
      * Get the access token from the token response body.
      *
-     * @param \Psr\Http\Message\StreamInterface|array $body
+     * @param $body
      *
-     * @return \Overtrue\Socialite\AccessTokenInterface
+     * @return \Wenprise\Socialite\AccessTokenInterface
      */
     protected function parseAccessToken($body)
     {
-        if (!is_array($body)) {
+        if ( ! is_array($body)) {
             $body = json_decode($body, true);
         }
 
-        if (empty($body['access_token'])) {
-            throw new AuthorizeFailedException('Authorize Failed: '.json_encode($body, JSON_UNESCAPED_UNICODE), $body);
+        if (empty($body[ 'access_token' ])) {
+            throw new AuthorizeFailedException('Authorize Failed: ' . json_encode($body, JSON_UNESCAPED_UNICODE), $body);
         }
 
         return new AccessToken($body);
@@ -459,16 +469,6 @@ abstract class AbstractProvider implements ProviderInterface
     protected function getCode()
     {
         return $this->request->get('code');
-    }
-
-    /**
-     * Get a fresh instance of the Guzzle HTTP client.
-     *
-     * @return \GuzzleHttp\Client
-     */
-    protected function getHttpClient()
-    {
-        return new Client(self::$guzzleOptions);
     }
 
     /**
@@ -490,7 +490,7 @@ abstract class AbstractProvider implements ProviderInterface
      */
     protected function usesState()
     {
-        return !$this->stateless;
+        return ! $this->stateless;
     }
 
     /**
@@ -500,7 +500,7 @@ abstract class AbstractProvider implements ProviderInterface
      */
     protected function isStateless()
     {
-        return !$this->request->hasSession() || $this->stateless;
+        return ! $this->request->hasSession() || $this->stateless;
     }
 
     /**
@@ -518,16 +518,16 @@ abstract class AbstractProvider implements ProviderInterface
             return $array;
         }
 
-        if (isset($array[$key])) {
-            return $array[$key];
+        if (isset($array[ $key ])) {
+            return $array[ $key ];
         }
 
         foreach (explode('.', $key) as $segment) {
-            if (!is_array($array) || !array_key_exists($segment, $array)) {
+            if ( ! is_array($array) || ! array_key_exists($segment, $array)) {
                 return $default;
             }
 
-            $array = $array[$segment];
+            $array = $array[ $segment ];
         }
 
         return $array;
@@ -540,11 +540,11 @@ abstract class AbstractProvider implements ProviderInterface
      */
     protected function makeState()
     {
-        if (!$this->request->hasSession()) {
+        if ( ! $this->request->hasSession()) {
             return false;
         }
 
-        $state = sha1(uniqid(mt_rand(1, 1000000), true));
+        $state   = sha1(uniqid(mt_rand(1, 1000000), true));
         $session = $this->request->getSession();
 
         if (is_callable([$session, 'put'])) {

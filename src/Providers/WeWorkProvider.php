@@ -9,11 +9,11 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Overtrue\Socialite\Providers;
+namespace Wenprise\Socialite\Providers;
 
-use Overtrue\Socialite\AccessTokenInterface;
-use Overtrue\Socialite\ProviderInterface;
-use Overtrue\Socialite\User;
+use Wenprise\Socialite\AccessTokenInterface;
+use Wenprise\Socialite\ProviderInterface;
+use Wenprise\Socialite\User;
 
 /**
  * Class WeWorkProvider.
@@ -130,7 +130,7 @@ class WeWorkProvider extends AbstractProvider implements ProviderInterface
     }
 
     /**
-     * @param \Overtrue\Socialite\AccessTokenInterface $token
+     * @param \Wenprise\Socialite\AccessTokenInterface $token
      *
      * @return mixed
      */
@@ -150,7 +150,7 @@ class WeWorkProvider extends AbstractProvider implements ProviderInterface
     /**
      * Get user base info.
      *
-     * @param \Overtrue\Socialite\AccessTokenInterface $token
+     * @param \Wenprise\Socialite\AccessTokenInterface $token
      *
      * @return mixed
      */
@@ -169,7 +169,7 @@ class WeWorkProvider extends AbstractProvider implements ProviderInterface
     /**
      * Get user detail info.
      *
-     * @param \Overtrue\Socialite\AccessTokenInterface $token
+     * @param \Wenprise\Socialite\AccessTokenInterface $token
      * @param $ticket
      *
      * @return mixed
@@ -191,7 +191,7 @@ class WeWorkProvider extends AbstractProvider implements ProviderInterface
     /**
      * @param array $user
      *
-     * @return \Overtrue\Socialite\User
+     * @return \Wenprise\Socialite\User
      */
     protected function mapUserToObject(array $user)
     {

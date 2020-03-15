@@ -9,23 +9,23 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Overtrue\Socialite;
+namespace Wenprise\Socialite;
 
 interface ProviderInterface
 {
     /**
      * Redirect the user to the authentication page for the provider.
      *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     * @return \WenpriseSecurity\Deps\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function redirect();
 
     /**
      * Get the User instance for the authenticated user.
      *
-     * @param \Overtrue\Socialite\AccessTokenInterface $token
+     * @param \Wenprise\Socialite\AccessTokenInterface $token
      *
-     * @return \Overtrue\Socialite\User
+     * @return \Wenprise\Socialite\User
      */
     public function user(AccessTokenInterface $token = null);
 }

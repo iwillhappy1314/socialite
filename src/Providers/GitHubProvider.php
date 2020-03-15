@@ -9,12 +9,12 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Overtrue\Socialite\Providers;
+namespace Wenprise\Socialite\Providers;
 
 use Exception;
-use Overtrue\Socialite\AccessTokenInterface;
-use Overtrue\Socialite\ProviderInterface;
-use Overtrue\Socialite\User;
+use Wenprise\Socialite\AccessTokenInterface;
+use Wenprise\Socialite\ProviderInterface;
+use Wenprise\Socialite\User;
 
 /**
  * Class GitHubProvider.
@@ -51,14 +51,14 @@ class GitHubProvider extends AbstractProvider implements ProviderInterface
     {
         $userUrl = 'https://api.github.com/user';
 
-        $response = $this->getHttpClient()->get(
+        $response = wp_remote_get(
             $userUrl, $this->createAuthorizationHeaders($token)
         );
 
-        $user = json_decode($response->getBody(), true);
+        $user = json_decode(wp_remote_retrieve_body($response), true);
 
         if (in_array('user:email', $this->scopes)) {
-            $user['email'] = $this->getEmailByToken($token);
+            $user[ 'email' ] = $this->getEmailByToken($token);
         }
 
         return $user;
@@ -76,16 +76,16 @@ class GitHubProvider extends AbstractProvider implements ProviderInterface
         $emailsUrl = 'https://api.github.com/user/emails';
 
         try {
-            $response = $this->getHttpClient()->get(
+            $response = wp_remote_get(
                 $emailsUrl, $this->createAuthorizationHeaders($token)
             );
         } catch (Exception $e) {
             return;
         }
 
-        foreach (json_decode($response->getBody(), true) as $email) {
-            if ($email['primary'] && $email['verified']) {
-                return $email['email'];
+        foreach (json_decode(wp_remote_retrieve_body($response), true) as $email) {
+            if ($email[ 'primary' ] && $email[ 'verified' ]) {
+                return $email[ 'email' ];
             }
         }
     }
@@ -96,12 +96,12 @@ class GitHubProvider extends AbstractProvider implements ProviderInterface
     protected function mapUserToObject(array $user)
     {
         return new User([
-            'id' => $this->arrayItem($user, 'id'),
+            'id'       => $this->arrayItem($user, 'id'),
             'username' => $this->arrayItem($user, 'login'),
             'nickname' => $this->arrayItem($user, 'login'),
-            'name' => $this->arrayItem($user, 'name'),
-            'email' => $this->arrayItem($user, 'email'),
-            'avatar' => $this->arrayItem($user, 'avatar_url'),
+            'name'     => $this->arrayItem($user, 'name'),
+            'email'    => $this->arrayItem($user, 'email'),
+            'avatar'   => $this->arrayItem($user, 'avatar_url'),
         ]);
     }
 
@@ -116,7 +116,7 @@ class GitHubProvider extends AbstractProvider implements ProviderInterface
     {
         return [
             'headers' => [
-                'Accept' => 'application/vnd.github.v3+json',
+                'Accept'        => 'application/vnd.github.v3+json',
                 'Authorization' => sprintf('token %s', $token),
             ],
         ];
