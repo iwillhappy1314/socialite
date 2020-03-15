@@ -93,8 +93,8 @@ class WeiboProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getUserByToken(AccessTokenInterface $token)
     {
-        $response = $this->getHttpClient()->get($this->baseUrl.'/'.$this->version.'/users/show.json', [
-            'query' => [
+        $response = wp_remote_get($this->baseUrl.'/'.$this->version.'/users/show.json', [
+            'body' => [
                 'uid' => $token['uid'],
                 'access_token' => $token->getToken(),
             ],
@@ -103,7 +103,7 @@ class WeiboProvider extends AbstractProvider implements ProviderInterface
             ],
         ]);
 
-        return json_decode($response->getBody(), true);
+        return json_decode(wp_remote_retrieve_body($response), true);
     }
 
     /**

@@ -133,11 +133,11 @@ class TaobaoProvider extends AbstractProvider implements ProviderInterface
      */
     public function getAccessToken($code)
     {
-        $response = $this->getHttpClient()->post($this->getTokenUrl(), [
+        $response = wp_remote_post($this->getTokenUrl(), [
             'query' => $this->getTokenFields($code),
         ]);
 
-        return $this->parseAccessToken($response->getBody()->getContents());
+        return $this->parseAccessToken(wp_remote_retrieve_body($response));
     }
 
     /**
@@ -161,9 +161,9 @@ class TaobaoProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getUserByToken(AccessTokenInterface $token)
     {
-        $response = $this->getHttpClient()->post($this->getUserInfoUrl($this->gatewayUrl, $token));
+        $response = wp_remote_post($this->getUserInfoUrl($this->gatewayUrl, $token));
 
-        return json_decode($response->getBody(), true);
+        return json_decode(wp_remote_retrieve_body($response), true);
     }
 
     /**

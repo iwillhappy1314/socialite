@@ -51,7 +51,7 @@ class AccessToken implements AccessTokenInterface, ArrayAccess, JsonSerializable
      */
     public function __toString()
     {
-        return strval($this->getAttribute('access_token', ''));
+        return (string)$this->getAttribute('access_token', '');
     }
 
     /**

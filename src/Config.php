@@ -46,7 +46,7 @@ class Config implements ArrayAccess
     {
         $config = $this->config;
 
-        if (is_null($key)) {
+        if ($key === null) {
             return $config;
         }
         if (isset($config[$key])) {
@@ -72,7 +72,7 @@ class Config implements ArrayAccess
      */
     public function set($key, $value)
     {
-        if (is_null($key)) {
+        if ($key === null) {
             throw new InvalidArgumentException('Invalid config key.');
         }
 

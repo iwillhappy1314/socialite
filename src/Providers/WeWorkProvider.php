@@ -76,7 +76,7 @@ class WeWorkProvider extends AbstractProvider implements ProviderInterface
     protected function getAuthUrl($state)
     {
         // 网页授权登录
-        if (!empty($this->scopes)) {
+        if ( ! empty($this->scopes)) {
             return $this->getOAuthUrl($state);
         }
 
@@ -94,12 +94,12 @@ class WeWorkProvider extends AbstractProvider implements ProviderInterface
     protected function getOAuthUrl($state)
     {
         $queries = [
-            'appid' => $this->clientId,
-            'redirect_uri' => $this->redirectUrl,
+            'appid'         => $this->clientId,
+            'redirect_uri'  => $this->redirectUrl,
             'response_type' => 'code',
-            'scope' => $this->formatScopes($this->scopes, $this->scopeSeparator),
-            'agentid' => $this->agentId,
-            'state' => $state,
+            'scope'         => $this->formatScopes($this->scopes, $this->scopeSeparator),
+            'agentid'       => $this->agentId,
+            'state'         => $state,
         ];
 
         return sprintf('https://open.weixin.qq.com/connect/oauth2/authorize?%s#wechat_redirect', http_build_query($queries));
@@ -115,13 +115,13 @@ class WeWorkProvider extends AbstractProvider implements ProviderInterface
     protected function getQrConnectUrl($state)
     {
         $queries = [
-            'appid' => $this->clientId,
-            'agentid' => $this->agentId,
+            'appid'        => $this->clientId,
+            'agentid'      => $this->agentId,
             'redirect_uri' => $this->redirectUrl,
-            'state' => $state,
+            'state'        => $state,
         ];
 
-        return 'https://open.work.weixin.qq.com/wwopen/sso/qrConnect?'.http_build_query($queries);
+        return 'https://open.work.weixin.qq.com/wwopen/sso/qrConnect?' . http_build_query($queries);
     }
 
     protected function getTokenUrl()
@@ -138,8 +138,8 @@ class WeWorkProvider extends AbstractProvider implements ProviderInterface
     {
         $userInfo = $this->getUserInfo($token);
 
-        if ($this->detailed && isset($userInfo['user_ticket'])) {
-            return $this->getUserDetail($token, $userInfo['user_ticket']);
+        if ($this->detailed && isset($userInfo[ 'user_ticket' ])) {
+            return $this->getUserDetail($token, $userInfo[ 'user_ticket' ]);
         }
 
         $this->detailed = false;
@@ -156,36 +156,36 @@ class WeWorkProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getUserInfo(AccessTokenInterface $token)
     {
-        $response = $this->getHttpClient()->get('https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo', [
+        $response = wp_remote_get('https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo', [
             'query' => array_filter([
                 'access_token' => $token->getToken(),
-                'code' => $this->getCode(),
+                'code'         => $this->getCode(),
             ]),
         ]);
 
-        return json_decode($response->getBody(), true);
+        return json_decode(wp_remote_retrieve_body($response), true);
     }
 
     /**
      * Get user detail info.
      *
      * @param \Wenprise\Socialite\AccessTokenInterface $token
-     * @param $ticket
+     * @param                                          $ticket
      *
      * @return mixed
      */
     protected function getUserDetail(AccessTokenInterface $token, $ticket)
     {
-        $response = $this->getHttpClient()->post('https://qyapi.weixin.qq.com/cgi-bin/user/getuserdetail', [
+        $response = wp_remote_post('https://qyapi.weixin.qq.com/cgi-bin/user/getuserdetail', [
             'query' => [
                 'access_token' => $token->getToken(),
             ],
-            'json' => [
+            'json'  => [
                 'user_ticket' => $ticket,
             ],
         ]);
 
-        return json_decode($response->getBody(), true);
+        return json_decode(wp_remote_retrieve_body($response), true);
     }
 
     /**
@@ -197,17 +197,17 @@ class WeWorkProvider extends AbstractProvider implements ProviderInterface
     {
         if ($this->detailed) {
             return new User([
-                'id' => $this->arrayItem($user, 'userid'),
-                'name' => $this->arrayItem($user, 'name'),
+                'id'     => $this->arrayItem($user, 'userid'),
+                'name'   => $this->arrayItem($user, 'name'),
                 'avatar' => $this->arrayItem($user, 'avatar'),
-                'email' => $this->arrayItem($user, 'email'),
+                'email'  => $this->arrayItem($user, 'email'),
             ]);
         }
 
         return new User(array_filter([
-            'id' => $this->arrayItem($user, 'UserId') ?: $this->arrayItem($user, 'OpenId'),
-            'userId' => $this->arrayItem($user, 'UserId'),
-            'openid' => $this->arrayItem($user, 'OpenId'),
+            'id'       => $this->arrayItem($user, 'UserId') ? : $this->arrayItem($user, 'OpenId'),
+            'userId'   => $this->arrayItem($user, 'UserId'),
+            'openid'   => $this->arrayItem($user, 'OpenId'),
             'deviceId' => $this->arrayItem($user, 'DeviceId'),
         ]));
     }

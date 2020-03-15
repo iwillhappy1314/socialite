@@ -46,10 +46,9 @@ class LinkedinProvider extends AbstractProvider implements ProviderInterface
      */
     public function getAccessToken($code)
     {
-        $response = $this->getHttpClient()
-            ->post($this->getTokenUrl(), ['form_params' => $this->getTokenFields($code)]);
+        $response = wp_remote_post($this->getTokenUrl(), ['form_params' => $this->getTokenFields($code)]);
 
-        return $this->parseAccessToken($response->getBody());
+        return $this->parseAccessToken(wp_remote_retrieve_body($response));
     }
 
     /**
@@ -94,14 +93,14 @@ class LinkedinProvider extends AbstractProvider implements ProviderInterface
     {
         $url = 'https://api.linkedin.com/v2/me?projection=(id,firstName,lastName,profilePicture(displayImage~:playableStreams))';
 
-        $response = $this->getHttpClient()->get($url, [
+        $response = wp_remote_get($url, [
             'headers' => [
                 'Authorization' => 'Bearer '.$token,
                 'X-RestLi-Protocol-Version' => '2.0.0',
             ],
         ]);
 
-        return (array) json_decode($response->getBody(), true);
+        return (array) json_decode(wp_remote_retrieve_body($response), true);
     }
 
     /**
@@ -115,14 +114,14 @@ class LinkedinProvider extends AbstractProvider implements ProviderInterface
     {
         $url = 'https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))';
 
-        $response = $this->getHttpClient()->get($url, [
+        $response = wp_remote_get($url, [
             'headers' => [
                 'Authorization' => 'Bearer '.$token,
                 'X-RestLi-Protocol-Version' => '2.0.0',
             ],
         ]);
 
-        return (array) $this->arrayItem(json_decode($response->getBody(), true), 'elements.0.handle~');
+        return (array) $this->arrayItem(json_decode(wp_remote_retrieve_body($response), true), 'elements.0.handle~');
     }
 
     /**

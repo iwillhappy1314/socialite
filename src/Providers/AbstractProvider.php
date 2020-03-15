@@ -30,10 +30,6 @@ abstract class AbstractProvider implements ProviderInterface
      */
     protected $name;
 
-    /**
-     * The HTTP request instance.
-     */
-    protected $request;
 
     /**
      * The client ID.
@@ -106,14 +102,12 @@ abstract class AbstractProvider implements ProviderInterface
     /**
      * Create a new provider instance.
      *
-     * @param object      $request
      * @param string      $clientId
      * @param string      $clientSecret
      * @param string|null $redirectUrl
      */
-    public function __construct($request, $clientId, $clientSecret, $redirectUrl = null)
+    public function __construct($clientId, $clientSecret, $redirectUrl = null)
     {
-        $this->request      = $request;
         $this->clientId     = $clientId;
         $this->clientSecret = $clientSecret;
         $this->redirectUrl  = $redirectUrl;
@@ -157,12 +151,14 @@ abstract class AbstractProvider implements ProviderInterface
      * Redirect the user of the application to the provider's authentication screen.
      *
      * @param string $redirectUrl
+     *
+     * @return mixed|string
      */
     public function redirect($redirectUrl = null)
     {
         $state = null;
 
-        if ( ! is_null($redirectUrl)) {
+        if ($redirectUrl !== null) {
             $this->redirectUrl = $redirectUrl;
         }
 
@@ -178,7 +174,7 @@ abstract class AbstractProvider implements ProviderInterface
     {
         $state = null;
 
-        if ( ! is_null($redirectUrl)) {
+        if ($redirectUrl !== null) {
             $this->redirectUrl = $redirectUrl;
         }
 
@@ -194,7 +190,7 @@ abstract class AbstractProvider implements ProviderInterface
      */
     public function user(AccessTokenInterface $token = null)
     {
-        if (is_null($token) && $this->hasInvalidState()) {
+        if ($token === null && $this->hasInvalidState()) {
             throw new InvalidStateException();
         }
 
@@ -292,30 +288,6 @@ abstract class AbstractProvider implements ProviderInterface
         $this->scopes = $scopes;
 
         return $this;
-    }
-
-    /**
-     * Set the request instance.
-     *
-     * @param  $request
-     *
-     * @return $this
-     */
-    public function setRequest($request)
-    {
-        $this->request = $request;
-
-        return $this;
-    }
-
-    /**
-     * Get the request instance.
-     *
-     *
-     */
-    public function getRequest()
-    {
-        return $this->request;
     }
 
     /**
@@ -418,10 +390,9 @@ abstract class AbstractProvider implements ProviderInterface
             return false;
         }
 
-        $state = $this->request->getSession()
-                               ->get('state');
+        $state = $_SESSION[ 'state' ];
 
-        return ! (strlen($state) > 0 && $this->request->get('state') === $state);
+        return ! (strlen($state) > 0 && $_GET[ 'state' ] === $state);
     }
 
     /**
@@ -468,19 +439,7 @@ abstract class AbstractProvider implements ProviderInterface
      */
     protected function getCode()
     {
-        return $this->request->get('code');
-    }
-
-    /**
-     * Set options for Guzzle HTTP client.
-     *
-     * @param array $config
-     *
-     * @return array
-     */
-    public static function setGuzzleOptions($config = [])
-    {
-        return self::$guzzleOptions = $config;
+        return $_GET[ 'code' ];
     }
 
     /**
@@ -500,7 +459,7 @@ abstract class AbstractProvider implements ProviderInterface
      */
     protected function isStateless()
     {
-        return ! $this->request->hasSession() || $this->stateless;
+        return ! session_id() || $this->stateless;
     }
 
     /**
@@ -514,7 +473,7 @@ abstract class AbstractProvider implements ProviderInterface
      */
     protected function arrayItem(array $array, $key, $default = null)
     {
-        if (is_null($key)) {
+        if ($key === null) {
             return $array;
         }
 
@@ -540,20 +499,13 @@ abstract class AbstractProvider implements ProviderInterface
      */
     protected function makeState()
     {
-        if ( ! $this->request->hasSession()) {
+        if ( ! session_id()) {
             return false;
         }
 
-        $state   = sha1(uniqid(mt_rand(1, 1000000), true));
-        $session = $this->request->getSession();
+        $state = sha1(uniqid(wp_rand(1, 1000000), true));
 
-        if (is_callable([$session, 'put'])) {
-            $session->put('state', $state);
-        } elseif (is_callable([$session, 'set'])) {
-            $session->set('state', $state);
-        } else {
-            return false;
-        }
+        $_SESSION [ 'state' ] = $state;
 
         return $state;
     }

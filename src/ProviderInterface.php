@@ -16,7 +16,7 @@ interface ProviderInterface
     /**
      * Redirect the user to the authentication page for the provider.
      *
-     * @return \WenpriseSecurity\Deps\Symfony\Component\HttpFoundation\RedirectResponse
+     * @return mixed
      */
     public function redirect();
 

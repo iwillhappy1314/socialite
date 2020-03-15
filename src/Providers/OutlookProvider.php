@@ -51,15 +51,15 @@ class OutlookProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getUserByToken(AccessTokenInterface $token)
     {
-        $response = $this->getHttpClient()->get(
+        $response = wp_remote_get(
             'https://graph.microsoft.com/v1.0/me',
             ['headers' => [
-                'Accept' => 'application/json',
-                'Authorization' => 'Bearer '.$token->getToken(),
+                'Accept'        => 'application/json',
+                'Authorization' => 'Bearer ' . $token->getToken(),
             ],
             ]);
 
-        return json_decode($response->getBody()->getContents(), true);
+        return json_decode(wp_remote_retrieve_body($response), true);
     }
 
     /**
@@ -68,11 +68,11 @@ class OutlookProvider extends AbstractProvider implements ProviderInterface
     protected function mapUserToObject(array $user)
     {
         return new User([
-            'id' => $this->arrayItem($user, 'id'),
+            'id'       => $this->arrayItem($user, 'id'),
             'nickname' => null,
-            'name' => $this->arrayItem($user, 'displayName'),
-            'email' => $this->arrayItem($user, 'userPrincipalName'),
-            'avatar' => null,
+            'name'     => $this->arrayItem($user, 'displayName'),
+            'email'    => $this->arrayItem($user, 'userPrincipalName'),
+            'avatar'   => null,
         ]);
     }
 

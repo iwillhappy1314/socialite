@@ -107,11 +107,11 @@ class QQProvider extends AbstractProvider implements ProviderInterface
      */
     public function getAccessToken($code)
     {
-        $response = $this->getHttpClient()->get($this->getTokenUrl(), [
+        $response = wp_remote_get($this->getTokenUrl(), [
             'query' => $this->getTokenFields($code),
         ]);
 
-        return $this->parseAccessToken($response->getBody()->getContents());
+        return $this->parseAccessToken(wp_remote_retrieve_body($response));
     }
 
     /**
@@ -150,9 +150,9 @@ class QQProvider extends AbstractProvider implements ProviderInterface
         $url = $this->baseUrl.'/oauth2.0/me?access_token='.$token->getToken();
         $this->withUnionId && $url .= '&unionid=1';
 
-        $response = $this->getHttpClient()->get($url);
+        $response = wp_remote_get($url);
 
-        $me = json_decode($this->removeCallback($response->getBody()->getContents()), true);
+        $me = json_decode($this->removeCallback(wp_remote_retrieve_body($response)), true);
         $this->openId = $me['openid'];
         $this->unionId = isset($me['unionid']) ? $me['unionid'] : '';
 
@@ -162,9 +162,9 @@ class QQProvider extends AbstractProvider implements ProviderInterface
             'oauth_consumer_key' => $this->clientId,
         ];
 
-        $response = $this->getHttpClient()->get($this->baseUrl.'/user/get_user_info?'.http_build_query($queries));
+        $response = wp_remote_get($this->baseUrl.'/user/get_user_info?'.http_build_query($queries));
 
-        return json_decode($this->removeCallback($response->getBody()->getContents()), true);
+        return json_decode($this->removeCallback(wp_remote_retrieve_body($response)), true);
     }
 
     /**

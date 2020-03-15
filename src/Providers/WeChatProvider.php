@@ -94,12 +94,12 @@ class WeChatProvider extends AbstractProvider implements ProviderInterface
      */
     public function getAccessToken($code)
     {
-        $response = $this->getHttpClient()->get($this->getTokenUrl(), [
+        $response = wp_remote_get($this->getTokenUrl(), [
             'headers' => ['Accept' => 'application/json'],
-            'query' => $this->getTokenFields($code),
+            'body'    => $this->getTokenFields($code),
         ]);
 
-        return $this->parseAccessToken($response->getBody());
+        return $this->parseAccessToken(wp_remote_retrieve_body($response));
     }
 
     /**
@@ -109,7 +109,7 @@ class WeChatProvider extends AbstractProvider implements ProviderInterface
     {
         $path = 'oauth2/authorize';
 
-        if (in_array('snsapi_login', $this->scopes)) {
+        if (in_array('snsapi_login', $this->scopes, true)) {
             $path = 'qrconnect';
         }
 
@@ -123,7 +123,7 @@ class WeChatProvider extends AbstractProvider implements ProviderInterface
     {
         $query = http_build_query($this->getCodeFields($state), '', '&', $this->encodingType);
 
-        return $url.'?'.$query.'#wechat_redirect';
+        return $url . '?' . $query . '#wechat_redirect';
     }
 
     /**
@@ -136,11 +136,11 @@ class WeChatProvider extends AbstractProvider implements ProviderInterface
         }
 
         return array_merge([
-            'appid' => $this->clientId,
-            'redirect_uri' => $this->redirectUrl,
-            'response_type' => 'code',
-            'scope' => $this->formatScopes($this->scopes, $this->scopeSeparator),
-            'state' => $state ?: md5(time()),
+            'appid'            => $this->clientId,
+            'redirect_uri'     => $this->redirectUrl,
+            'response_type'    => 'code',
+            'scope'            => $this->formatScopes($this->scopes, $this->scopeSeparator),
+            'state'            => $state ? : md5(time()),
             'connect_redirect' => 1,
         ], $this->parameters);
     }
@@ -151,10 +151,10 @@ class WeChatProvider extends AbstractProvider implements ProviderInterface
     protected function getTokenUrl()
     {
         if ($this->component) {
-            return $this->baseUrl.'/oauth2/component/access_token';
+            return $this->baseUrl . '/oauth2/component/access_token';
         }
 
-        return $this->baseUrl.'/oauth2/access_token';
+        return $this->baseUrl . '/oauth2/access_token';
     }
 
     /**
@@ -164,25 +164,25 @@ class WeChatProvider extends AbstractProvider implements ProviderInterface
     {
         $scopes = explode(',', $token->getAttribute('scope', ''));
 
-        if (in_array('snsapi_base', $scopes)) {
+        if (in_array('snsapi_base', $scopes, true)) {
             return $token->toArray();
         }
 
-        if (empty($token['openid'])) {
+        if (empty($token[ 'openid' ])) {
             throw new InvalidArgumentException('openid of AccessToken is required.');
         }
 
-        $language = $this->withCountryCode ? null : (isset($this->parameters['lang']) ? $this->parameters['lang'] : 'zh_CN');
+        $language = $this->withCountryCode ? null : (isset($this->parameters[ 'lang' ]) ? $this->parameters[ 'lang' ] : 'zh_CN');
 
-        $response = $this->getHttpClient()->get($this->baseUrl.'/userinfo', [
-            'query' => array_filter([
+        $response = wp_remote_get($this->baseUrl . '/userinfo', [
+            'body' => array_filter([
                 'access_token' => $token->getToken(),
-                'openid' => $token['openid'],
-                'lang' => $language,
+                'openid'       => $token[ 'openid' ],
+                'lang'         => $language,
             ]),
         ]);
 
-        return json_decode($response->getBody(), true);
+        return json_decode(wp_remote_retrieve_body($response), true);
     }
 
     /**
@@ -191,11 +191,11 @@ class WeChatProvider extends AbstractProvider implements ProviderInterface
     protected function mapUserToObject(array $user)
     {
         return new User([
-            'id' => $this->arrayItem($user, 'openid'),
-            'name' => $this->arrayItem($user, 'nickname'),
+            'id'       => $this->arrayItem($user, 'openid'),
+            'name'     => $this->arrayItem($user, 'nickname'),
             'nickname' => $this->arrayItem($user, 'nickname'),
-            'avatar' => $this->arrayItem($user, 'headimgurl'),
-            'email' => null,
+            'avatar'   => $this->arrayItem($user, 'headimgurl'),
+            'email'    => null,
         ]);
     }
 
@@ -205,12 +205,12 @@ class WeChatProvider extends AbstractProvider implements ProviderInterface
     protected function getTokenFields($code)
     {
         return array_filter([
-            'appid' => $this->clientId,
-            'secret' => $this->clientSecret,
-            'component_appid' => $this->component ? $this->component->getAppId() : null,
+            'appid'                  => $this->clientId,
+            'secret'                 => $this->clientSecret,
+            'component_appid'        => $this->component ? $this->component->getAppId() : null,
             'component_access_token' => $this->component ? $this->component->getToken() : null,
-            'code' => $code,
-            'grant_type' => 'authorization_code',
+            'code'                   => $code,
+            'grant_type'             => 'authorization_code',
         ]);
     }
 
@@ -224,8 +224,8 @@ class WeChatProvider extends AbstractProvider implements ProviderInterface
     protected function removeCallback($response)
     {
         if (false !== strpos($response, 'callback')) {
-            $lpos = strpos($response, '(');
-            $rpos = strrpos($response, ')');
+            $lpos     = strpos($response, '(');
+            $rpos     = strrpos($response, ')');
             $response = substr($response, $lpos + 1, $rpos - $lpos - 1);
         }
 

@@ -28,13 +28,6 @@ class SocialiteManager implements FactoryInterface
     protected $config;
 
     /**
-     * The request instance.
-     *
-     * @var Request
-     */
-    protected $request;
-
-    /**
      * The registered custom driver creators.
      *
      * @var array
@@ -48,17 +41,17 @@ class SocialiteManager implements FactoryInterface
      */
     protected $initialDrivers = [
         'facebook' => 'Facebook',
-        'github' => 'GitHub',
-        'google' => 'Google',
+        'github'   => 'GitHub',
+        'google'   => 'Google',
         'linkedin' => 'Linkedin',
-        'weibo' => 'Weibo',
-        'qq' => 'QQ',
-        'wechat' => 'WeChat',
-        'douban' => 'Douban',
-        'wework' => 'WeWork',
-        'outlook' => 'Outlook',
-        'douyin' => 'DouYin',
-        'taobao' => 'Taobao',
+        'weibo'    => 'Weibo',
+        'qq'       => 'QQ',
+        'wechat'   => 'WeChat',
+        'douban'   => 'Douban',
+        'wework'   => 'WeWork',
+        'outlook'  => 'Outlook',
+        'douyin'   => 'DouYin',
+        'taobao'   => 'Taobao',
     ];
 
     /**
@@ -71,20 +64,11 @@ class SocialiteManager implements FactoryInterface
     /**
      * SocialiteManager constructor.
      *
-     * @param array        $config
-     * @param mixed|null $request
+     * @param array      $config
      */
-    public function __construct(array $config, $request = null)
+    public function __construct(array $config)
     {
         $this->config = new Config($config);
-
-        if ($this->config->has('guzzle')) {
-            Providers\AbstractProvider::setGuzzleOptions($this->config->get('guzzle'));
-        }
-
-        if ($request) {
-            $this->setRequest($request);
-        }
     }
 
     /**
@@ -110,52 +94,33 @@ class SocialiteManager implements FactoryInterface
      */
     public function driver($driver)
     {
-        if (!isset($this->drivers[$driver])) {
-            $this->drivers[$driver] = $this->createDriver($driver);
+        if ( ! isset($this->drivers[ $driver ])) {
+            $this->drivers[ $driver ] = $this->createDriver($driver);
         }
 
-        return $this->drivers[$driver];
+        return $this->drivers[ $driver ];
     }
 
-    /**
-     * @param $request
-     *
-     * @return $this
-     */
-    public function setRequest( $request)
-    {
-        $this->request = $request;
-
-        return $this;
-    }
-
-    /**
-     * @return
-     */
-    public function getRequest()
-    {
-        return $this->request ?: $this->createDefaultRequest();
-    }
 
     /**
      * Create a new driver instance.
      *
      * @param string $driver
      *
+     * @return ProviderInterface
      * @throws \InvalidArgumentException
      *
-     * @return ProviderInterface
      */
     protected function createDriver($driver)
     {
-        if (isset($this->initialDrivers[$driver])) {
-            $provider = $this->initialDrivers[$driver];
-            $provider = __NAMESPACE__.'\\Providers\\'.$provider.'Provider';
+        if (isset($this->initialDrivers[ $driver ])) {
+            $provider = $this->initialDrivers[ $driver ];
+            $provider = __NAMESPACE__ . '\\Providers\\' . $provider . 'Provider';
 
             return $this->buildProvider($provider, $this->formatConfig($this->config->get($driver)));
         }
 
-        if (isset($this->customCreators[$driver])) {
+        if (isset($this->customCreators[ $driver ])) {
             return $this->callCustomCreator($driver);
         }
 
@@ -171,23 +136,9 @@ class SocialiteManager implements FactoryInterface
      */
     protected function callCustomCreator($driver)
     {
-        return $this->customCreators[$driver]($this->config);
+        return $this->customCreators[ $driver ]($this->config);
     }
 
-    /**
-     * Create default request instance.
-     *
-     * @return
-     */
-    protected function createDefaultRequest()
-    {
-        $request = WP_HTTP;
-        $session = new Session();
-
-        $request->setSession($session);
-
-        return $request;
-    }
 
     /**
      * Register a custom driver creator Closure.
@@ -199,7 +150,7 @@ class SocialiteManager implements FactoryInterface
      */
     public function extend($driver, Closure $callback)
     {
-        $this->customCreators[$driver] = $callback;
+        $this->customCreators[ $driver ] = $callback;
 
         return $this;
     }
@@ -225,10 +176,9 @@ class SocialiteManager implements FactoryInterface
     public function buildProvider($provider, $config)
     {
         return new $provider(
-            $this->getRequest(),
-            $config['client_id'],
-            $config['client_secret'],
-            $config['redirect']
+            $config[ 'client_id' ],
+            $config[ 'client_secret' ],
+            $config[ 'redirect' ]
         );
     }
 
@@ -242,9 +192,9 @@ class SocialiteManager implements FactoryInterface
     public function formatConfig(array $config)
     {
         return array_merge([
-            'identifier' => $config['client_id'],
-            'secret' => $config['client_secret'],
-            'callback_uri' => $config['redirect'],
+            'identifier'   => $config[ 'client_id' ],
+            'secret'       => $config[ 'client_secret' ],
+            'callback_uri' => $config[ 'redirect' ],
         ], $config);
     }
 }
