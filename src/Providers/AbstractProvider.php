@@ -170,16 +170,18 @@ abstract class AbstractProvider implements ProviderInterface
     }
 
 
-    public function getAuthRedirectUrl($redirectUrl = null)
+    public function getAuthRedirectUrl($redirectUrl = null, $token = null)
     {
-        $state = null;
-
         if ($redirectUrl !== null) {
             $this->redirectUrl = $redirectUrl;
         }
 
         if ($this->usesState()) {
             $state = $this->makeState();
+        }
+
+        if ($token) {
+            $state = $token;
         }
 
         return $this->getAuthUrl($state);
@@ -494,6 +496,8 @@ abstract class AbstractProvider implements ProviderInterface
 
     /**
      * Put state to session storage and return it.
+     *
+     * @param null $token
      *
      * @return string|bool
      */
