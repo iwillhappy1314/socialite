@@ -12,7 +12,7 @@ use Wenprise\Socialite\User;
  *
  * @author haoliang@qiyuankeji.vip
  *
- * @see http://open.douyin.com/platform
+ * @see    http://open.douyin.com/platform
  */
 class DouYinProvider extends AbstractProvider implements ProviderInterface
 {
@@ -37,7 +37,7 @@ class DouYinProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getAuthUrl($state)
     {
-        return $this->buildAuthUrlFromBase($this->baseUrl.'/platform/oauth/connect', $state);
+        return $this->buildAuthUrlFromBase($this->baseUrl . '/platform/oauth/connect', $state);
     }
 
     /**
@@ -50,14 +50,14 @@ class DouYinProvider extends AbstractProvider implements ProviderInterface
     public function getCodeFields($state = null)
     {
         $fields = [
-            'client_key' => $this->clientId,
-            'redirect_uri' => $this->redirectUrl,
-            'scope' => $this->formatScopes($this->scopes, $this->scopeSeparator),
+            'client_key'    => $this->clientId,
+            'redirect_uri'  => $this->redirectUrl,
+            'scope'         => $this->formatScopes($this->scopes, $this->scopeSeparator),
             'response_type' => 'code',
         ];
 
         if ($this->usesState()) {
-            $fields['state'] = $state;
+            $fields[ 'state' ] = $state;
         }
 
         return $fields;
@@ -70,7 +70,7 @@ class DouYinProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getTokenUrl()
     {
-        return $this->baseUrl.'/oauth/access_token';
+        return $this->baseUrl . '/oauth/access_token';
     }
 
     /**
@@ -82,9 +82,9 @@ class DouYinProvider extends AbstractProvider implements ProviderInterface
      */
     public function getAccessToken($code)
     {
-        $response = wp_remote_get($this->getTokenUrl(), [
-            'query' => $this->getTokenFields($code),
-        ]);
+        $url = add_query_arg($this->getTokenFields($code), $this->getTokenUrl());
+
+        $response = wp_remote_get($url);
 
         return $this->parseAccessToken(wp_remote_retrieve_body($response));
     }
@@ -99,10 +99,10 @@ class DouYinProvider extends AbstractProvider implements ProviderInterface
     protected function getTokenFields($code)
     {
         return [
-            'client_key' => $this->clientId,
+            'client_key'    => $this->clientId,
             'client_secret' => $this->clientSecret,
-            'code' => $code,
-            'grant_type' => 'authorization_code',
+            'code'          => $code,
+            'grant_type'    => 'authorization_code',
         ];
     }
 
@@ -115,15 +115,15 @@ class DouYinProvider extends AbstractProvider implements ProviderInterface
      */
     protected function parseAccessToken($body)
     {
-        if (!is_array($body)) {
+        if ( ! is_array($body)) {
             $body = json_decode($body, true);
         }
 
-        if (empty($body['data']['access_token'])) {
-            throw new AuthorizeFailedException('Authorize Failed: '.json_encode($body, JSON_UNESCAPED_UNICODE), $body);
+        if (empty($body[ 'data' ][ 'access_token' ])) {
+            throw new AuthorizeFailedException('Authorize Failed: ' . json_encode($body, JSON_UNESCAPED_UNICODE), $body);
         }
 
-        return new AccessToken($body['data']);
+        return new AccessToken($body[ 'data' ]);
     }
 
     /**
@@ -135,13 +135,13 @@ class DouYinProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getUserByToken(AccessTokenInterface $token)
     {
-        $userUrl = $this->baseUrl.'/oauth/userinfo/';
+        $userUrl = $this->baseUrl . '/oauth/userinfo/';
 
         $response = wp_remote_get(
             $userUrl, [
                 'query' => [
                     'access_token' => $token->getToken(),
-                    'open_id' => $token['open_id'],
+                    'open_id'      => $token[ 'open_id' ],
                 ],
             ]
         );
@@ -159,10 +159,10 @@ class DouYinProvider extends AbstractProvider implements ProviderInterface
     protected function mapUserToObject(array $user)
     {
         return new User([
-            'id' => $this->arrayItem($user, 'open_id'),
+            'id'       => $this->arrayItem($user, 'open_id'),
             'username' => $this->arrayItem($user, 'nickname'),
             'nickname' => $this->arrayItem($user, 'nickname'),
-            'avatar' => $this->arrayItem($user, 'avatar'),
+            'avatar'   => $this->arrayItem($user, 'avatar'),
         ]);
     }
 }

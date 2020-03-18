@@ -94,10 +94,13 @@ class WeChatProvider extends AbstractProvider implements ProviderInterface
      */
     public function getAccessToken($code)
     {
-        $response = wp_remote_get($this->getTokenUrl(), [
+        $url = add_query_arg($this->getTokenFields($code), $this->getTokenUrl());
+
+        $args = [
             'headers' => ['Accept' => 'application/json'],
-            'body'    => $this->getTokenFields($code),
-        ]);
+        ];
+
+        $response = wp_remote_get($url, $args);
 
         return $this->parseAccessToken(wp_remote_retrieve_body($response));
     }
@@ -174,13 +177,13 @@ class WeChatProvider extends AbstractProvider implements ProviderInterface
 
         $language = $this->withCountryCode ? null : (isset($this->parameters[ 'lang' ]) ? $this->parameters[ 'lang' ] : 'zh_CN');
 
-        $response = wp_remote_get($this->baseUrl . '/userinfo', [
-            'body' => array_filter([
-                'access_token' => $token->getToken(),
-                'openid'       => $token[ 'openid' ],
-                'lang'         => $language,
-            ]),
-        ]);
+        $url = add_query_arg(array_filter([
+            'access_token' => $token->getToken(),
+            'openid'       => $token[ 'openid' ],
+            'lang'         => $language,
+        ]), $this->baseUrl . '/userinfo');
+
+        $response = wp_remote_get($url);
 
         return json_decode(wp_remote_retrieve_body($response), true);
     }

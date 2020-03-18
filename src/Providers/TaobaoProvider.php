@@ -76,7 +76,7 @@ class TaobaoProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getAuthUrl($state)
     {
-        return $this->buildAuthUrlFromBase($this->baseUrl.'/authorize', $state);
+        return $this->buildAuthUrlFromBase($this->baseUrl . '/authorize', $state);
     }
 
     /**
@@ -89,14 +89,14 @@ class TaobaoProvider extends AbstractProvider implements ProviderInterface
     public function getCodeFields($state = null)
     {
         $fields = [
-            'client_id' => $this->clientId,
-            'redirect_uri' => $this->redirectUrl,
-            'view' => $this->view,
+            'client_id'     => $this->clientId,
+            'redirect_uri'  => $this->redirectUrl,
+            'view'          => $this->view,
             'response_type' => 'code',
         ];
 
         if ($this->usesState()) {
-            $fields['state'] = $state;
+            $fields[ 'state' ] = $state;
         }
 
         return $fields;
@@ -109,7 +109,7 @@ class TaobaoProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getTokenUrl()
     {
-        return $this->baseUrl.'/token';
+        return $this->baseUrl . '/token';
     }
 
     /**
@@ -133,9 +133,9 @@ class TaobaoProvider extends AbstractProvider implements ProviderInterface
      */
     public function getAccessToken($code)
     {
-        $response = wp_remote_post($this->getTokenUrl(), [
-            'query' => $this->getTokenFields($code),
-        ]);
+        $url = add_query_arg($this->getTokenFields($code), $this->getTokenUrl());
+
+        $response = wp_remote_post($url);
 
         return $this->parseAccessToken(wp_remote_retrieve_body($response));
     }
@@ -176,10 +176,10 @@ class TaobaoProvider extends AbstractProvider implements ProviderInterface
     protected function mapUserToObject(array $user)
     {
         return new User([
-            'id' => $this->arrayItem($user, 'open_id'),
+            'id'       => $this->arrayItem($user, 'open_id'),
             'nickname' => $this->arrayItem($user, 'nick'),
-            'name' => $this->arrayItem($user, 'nick'),
-            'avatar' => $this->arrayItem($user, 'avatar'),
+            'name'     => $this->arrayItem($user, 'nick'),
+            'avatar'   => $this->arrayItem($user, 'avatar'),
         ]);
     }
 
@@ -195,7 +195,7 @@ class TaobaoProvider extends AbstractProvider implements ProviderInterface
         $stringToBeSigned = $this->clientSecret;
 
         foreach ($params as $k => $v) {
-            if (!is_array($v) && '@' != substr($v, 0, 1)) {
+            if ( ! is_array($v) && '@' != substr($v, 0, 1)) {
                 $stringToBeSigned .= "$k$v";
             }
         }
@@ -214,16 +214,16 @@ class TaobaoProvider extends AbstractProvider implements ProviderInterface
     protected function getPublicFields(AccessTokenInterface $token, array $apiFields = [])
     {
         $fields = [
-            'app_key' => $this->clientId,
+            'app_key'     => $this->clientId,
             'sign_method' => $this->signMethod,
-            'session' => $token->getToken(),
-            'timestamp' => date('Y-m-d H:i:s'),
-            'v' => $this->version,
-            'format' => $this->format,
+            'session'     => $token->getToken(),
+            'timestamp'   => date('Y-m-d H:i:s'),
+            'v'           => $this->version,
+            'format'      => $this->format,
         ];
 
-        $fields = array_merge($apiFields, $fields);
-        $fields['sign'] = $this->generateSign($fields);
+        $fields           = array_merge($apiFields, $fields);
+        $fields[ 'sign' ] = $this->generateSign($fields);
 
         return $fields;
     }
@@ -237,6 +237,6 @@ class TaobaoProvider extends AbstractProvider implements ProviderInterface
 
         $query = http_build_query($this->getPublicFields($token, $apiFields), '', '&', $this->encodingType);
 
-        return $url.'?'.$query;
+        return $url . '?' . $query;
     }
 }

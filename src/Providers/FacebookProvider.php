@@ -82,9 +82,8 @@ class FacebookProvider extends AbstractProvider implements ProviderInterface
      */
     public function getAccessToken($code)
     {
-        $response = wp_remote_get($this->getTokenUrl(), [
-            'body' => $this->getTokenFields($code),
-        ]);
+        $url = add_query_arg($this->getTokenFields($code), $this->getTokenUrl());
+        $response = wp_remote_get($url);
 
         return $this->parseAccessToken(wp_remote_retrieve_body($response));
     }

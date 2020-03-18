@@ -73,7 +73,7 @@ class QQProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getAuthUrl($state)
     {
-        return $this->buildAuthUrlFromBase($this->baseUrl.'/oauth2.0/authorize', $state);
+        return $this->buildAuthUrlFromBase($this->baseUrl . '/oauth2.0/authorize', $state);
     }
 
     /**
@@ -83,7 +83,7 @@ class QQProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getTokenUrl()
     {
-        return $this->baseUrl.'/oauth2.0/token';
+        return $this->baseUrl . '/oauth2.0/token';
     }
 
     /**
@@ -107,9 +107,8 @@ class QQProvider extends AbstractProvider implements ProviderInterface
      */
     public function getAccessToken($code)
     {
-        $response = wp_remote_get($this->getTokenUrl(), [
-            'query' => $this->getTokenFields($code),
-        ]);
+        $url      = add_query_arg($this->getTokenFields($code), $this->getTokenUrl());
+        $response = wp_remote_get($url);
 
         return $this->parseAccessToken(wp_remote_retrieve_body($response));
     }
@@ -147,22 +146,22 @@ class QQProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getUserByToken(AccessTokenInterface $token)
     {
-        $url = $this->baseUrl.'/oauth2.0/me?access_token='.$token->getToken();
+        $url = $this->baseUrl . '/oauth2.0/me?access_token=' . $token->getToken();
         $this->withUnionId && $url .= '&unionid=1';
 
         $response = wp_remote_get($url);
 
-        $me = json_decode($this->removeCallback(wp_remote_retrieve_body($response)), true);
-        $this->openId = $me['openid'];
-        $this->unionId = isset($me['unionid']) ? $me['unionid'] : '';
+        $me            = json_decode($this->removeCallback(wp_remote_retrieve_body($response)), true);
+        $this->openId  = $me[ 'openid' ];
+        $this->unionId = isset($me[ 'unionid' ]) ? $me[ 'unionid' ] : '';
 
         $queries = [
-            'access_token' => $token->getToken(),
-            'openid' => $this->openId,
+            'access_token'       => $token->getToken(),
+            'openid'             => $this->openId,
             'oauth_consumer_key' => $this->clientId,
         ];
 
-        $response = wp_remote_get($this->baseUrl.'/user/get_user_info?'.http_build_query($queries));
+        $response = wp_remote_get($this->baseUrl . '/user/get_user_info?' . http_build_query($queries));
 
         return json_decode($this->removeCallback(wp_remote_retrieve_body($response)), true);
     }
@@ -177,12 +176,12 @@ class QQProvider extends AbstractProvider implements ProviderInterface
     protected function mapUserToObject(array $user)
     {
         return new User([
-            'id' => $this->openId,
-            'unionid' => $this->unionId,
+            'id'       => $this->openId,
+            'unionid'  => $this->unionId,
             'nickname' => $this->arrayItem($user, 'nickname'),
-            'name' => $this->arrayItem($user, 'nickname'),
-            'email' => $this->arrayItem($user, 'email'),
-            'avatar' => $this->arrayItem($user, 'figureurl_qq_2'),
+            'name'     => $this->arrayItem($user, 'nickname'),
+            'email'    => $this->arrayItem($user, 'email'),
+            'avatar'   => $this->arrayItem($user, 'figureurl_qq_2'),
         ]);
     }
 
@@ -196,8 +195,8 @@ class QQProvider extends AbstractProvider implements ProviderInterface
     protected function removeCallback($response)
     {
         if (false !== strpos($response, 'callback')) {
-            $lpos = strpos($response, '(');
-            $rpos = strrpos($response, ')');
+            $lpos     = strpos($response, '(');
+            $rpos     = strrpos($response, ')');
             $response = substr($response, $lpos + 1, $rpos - $lpos - 1);
         }
 

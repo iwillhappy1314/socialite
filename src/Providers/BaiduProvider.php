@@ -100,10 +100,9 @@ class BaiduProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getUserByToken(AccessTokenInterface $token)
     {
-        $response = wp_remote_get($this->baseUrl . '/rest/' . $this->version . '/passport/users/getInfo', [
-            'body'   => [
-                'access_token' => $token->getToken(),
-            ],
+        $url = add_query_arg(['access_token' => $token->getToken()], $this->baseUrl . '/rest/' . $this->version . '/passport/users/getInfo');
+
+        $response = wp_remote_get($url, [
             'headers' => [
                 'Accept' => 'application/json',
             ],

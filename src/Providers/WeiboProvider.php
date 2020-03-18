@@ -59,7 +59,7 @@ class WeiboProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getAuthUrl($state)
     {
-        return $this->buildAuthUrlFromBase($this->baseUrl.'/oauth2/authorize', $state);
+        return $this->buildAuthUrlFromBase($this->baseUrl . '/oauth2/authorize', $state);
     }
 
     /**
@@ -69,7 +69,7 @@ class WeiboProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getTokenUrl()
     {
-        return $this->baseUrl.'/'.$this->version.'/oauth2/access_token';
+        return $this->baseUrl . '/' . $this->version . '/oauth2/access_token';
     }
 
     /**
@@ -93,11 +93,14 @@ class WeiboProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getUserByToken(AccessTokenInterface $token)
     {
-        $response = wp_remote_get($this->baseUrl.'/'.$this->version.'/users/show.json', [
-            'body' => [
-                'uid' => $token['uid'],
-                'access_token' => $token->getToken(),
-            ],
+        $args = [
+            'uid'          => $token[ 'uid' ],
+            'access_token' => $token->getToken(),
+        ];
+
+        $url = add_query_arg($args, $this->baseUrl . '/' . $this->version . '/users/show.json');
+
+        $response = wp_remote_get($url, [
             'headers' => [
                 'Accept' => 'application/json',
             ],
@@ -116,11 +119,11 @@ class WeiboProvider extends AbstractProvider implements ProviderInterface
     protected function mapUserToObject(array $user)
     {
         return new User([
-            'id' => $this->arrayItem($user, 'id'),
+            'id'       => $this->arrayItem($user, 'id'),
             'nickname' => $this->arrayItem($user, 'screen_name'),
-            'name' => $this->arrayItem($user, 'name'),
-            'email' => $this->arrayItem($user, 'email'),
-            'avatar' => $this->arrayItem($user, 'avatar_large'),
+            'name'     => $this->arrayItem($user, 'name'),
+            'email'    => $this->arrayItem($user, 'email'),
+            'avatar'   => $this->arrayItem($user, 'avatar_large'),
         ]);
     }
 }
