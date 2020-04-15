@@ -95,7 +95,7 @@ class QQProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getTokenFields($code)
     {
-        return parent::getTokenFields($code) + ['grant_type' => 'authorization_code'];
+        return ['grant_type' => 'authorization_code'] + parent::getTokenFields($code);
     }
 
     /**
