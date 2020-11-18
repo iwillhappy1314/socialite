@@ -143,7 +143,7 @@ class WeChatProvider extends AbstractProvider implements ProviderInterface
             'redirect_uri'     => $this->redirectUrl,
             'response_type'    => 'code',
             'scope'            => $this->formatScopes($this->scopes, $this->scopeSeparator),
-            'state'            => $state ? : md5(time()),
+            'state'            => $state ? : md5(uniqid()),
             'connect_redirect' => 1,
         ], $this->parameters);
     }
