@@ -92,12 +92,6 @@ abstract class AbstractProvider implements ProviderInterface
      */
     protected $stateless = false;
 
-    /**
-     * The options for guzzle\client.
-     *
-     * @var array
-     */
-    protected static $guzzleOptions = ['http_errors' => false];
 
     /**
      * Create a new provider instance.
