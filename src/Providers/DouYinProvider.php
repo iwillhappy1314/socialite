@@ -136,15 +136,13 @@ class DouYinProvider extends AbstractProvider implements ProviderInterface
     protected function getUserByToken(AccessTokenInterface $token)
     {
         $userUrl = $this->baseUrl . '/oauth/userinfo/';
+        
+        $url = add_query_arg([
+            'access_token' => $token->getToken(),
+            'open_id'      => $token[ 'open_id' ],
+        ], $userUrl)
 
-        $response = wp_remote_get(
-            $userUrl, [
-                'query' => [
-                    'access_token' => $token->getToken(),
-                    'open_id'      => $token[ 'open_id' ],
-                ],
-            ]
-        );
+        $response = wp_remote_get($url);
 
         return json_decode(wp_remote_retrieve_body($response), true);
     }

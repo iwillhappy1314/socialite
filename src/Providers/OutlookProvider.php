@@ -53,10 +53,11 @@ class OutlookProvider extends AbstractProvider implements ProviderInterface
     {
         $response = wp_remote_get(
             'https://graph.microsoft.com/v1.0/me',
-            ['headers' => [
-                'Accept'        => 'application/json',
-                'Authorization' => 'Bearer ' . $token->getToken(),
-            ],
+            [
+                'headers' => [
+                    'Accept'        => 'application/json',
+                    'Authorization' => 'Bearer ' . $token->getToken(),
+                ],
             ]);
 
         return json_decode(wp_remote_retrieve_body($response), true);

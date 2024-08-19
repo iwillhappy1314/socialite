@@ -156,12 +156,12 @@ class WeWorkProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getUserInfo(AccessTokenInterface $token)
     {
-        $response = wp_remote_get('https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo', [
-            'query' => array_filter([
-                'access_token' => $token->getToken(),
-                'code'         => $this->getCode(),
-            ]),
-        ]);
+        $url = add_query_arg(array_filter([
+            'access_token' => $token->getToken(),
+            'code'         => $this->getCode(),
+        ], 'https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo');
+
+        $response = wp_remote_get($url);
 
         return json_decode(wp_remote_retrieve_body($response), true);
     }
@@ -176,11 +176,8 @@ class WeWorkProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getUserDetail(AccessTokenInterface $token, $ticket)
     {
-        $response = wp_remote_post('https://qyapi.weixin.qq.com/cgi-bin/user/getuserdetail', [
-            'query' => [
-                'access_token' => $token->getToken(),
-            ],
-            'json'  => [
+        $response = wp_remote_post(add_query_arg('access_token', $token->getToken(), 'https://qyapi.weixin.qq.com/cgi-bin/user/getuserdetail'), [
+            'body'  => [
                 'user_ticket' => $ticket,
             ],
         ]);

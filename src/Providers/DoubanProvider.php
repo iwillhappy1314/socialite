@@ -80,7 +80,7 @@ class DoubanProvider extends AbstractProvider implements ProviderInterface
     public function getAccessToken($code)
     {
         $response = wp_remote_post($this->getTokenUrl(), [
-            'form_params' => $this->getTokenFields($code),
+            'body' => $this->getTokenFields($code),
         ]);
 
         return $this->parseAccessToken(wp_remote_retrieve_body($response));
