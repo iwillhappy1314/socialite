@@ -104,6 +104,7 @@ class TiktokProvider extends AbstractProvider implements ProviderInterface
             'client_secret' => $this->clientSecret,
             'code'          => $code,
             'grant_type'    => 'authorization_code',
+            'redirect_uri'  => $this->getRedirectUrl(),
         ];
     }
 
@@ -120,11 +121,11 @@ class TiktokProvider extends AbstractProvider implements ProviderInterface
             $body = json_decode($body, true);
         }
 
-        if (empty($body[ 'data' ][ 'access_token' ])) {
+        if (empty($body[ 'access_token' ])) {
             throw new AuthorizeFailedException('Authorize Failed: ' . json_encode($body, JSON_UNESCAPED_UNICODE), $body);
         }
 
-        return new AccessToken($body[ 'data' ]);
+        return new AccessToken($body);
     }
 
     /**
@@ -138,12 +139,10 @@ class TiktokProvider extends AbstractProvider implements ProviderInterface
     {
         $userUrl = 'https://open.tiktokapis.com/v2/user/info/';
 
-        $response = wp_remote_get($userUrl, [
-                [
-                    'headers' => [
-                        'Authorization' => 'Bearer ' . $token->getToken(),
-                        'Content-Type'  => 'application/json',
-                    ],
+        $response = wp_remote_get(add_query_arg('fields', 'open_id,union_id,avatar_url,display_name,display_name', $userUrl), [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $token->getToken(),
+                    'Content-Type'  => 'application/json',
                 ],
             ]
         );
@@ -161,10 +160,10 @@ class TiktokProvider extends AbstractProvider implements ProviderInterface
     protected function mapUserToObject(array $user)
     {
         return new User([
-            'id'       => $this->arrayItem($user, 'open_id'),
-            'username' => $this->arrayItem($user, 'nickname'),
-            'nickname' => $this->arrayItem($user, 'nickname'),
-            'avatar'   => $this->arrayItem($user, 'avatar'),
+            'id'       => $this->arrayItem($user['data']['user'], 'open_id'),
+            'username' => $this->arrayItem($user['data']['user'], 'nickname'),
+            'nickname' => $this->arrayItem($user['data']['user'], 'nickname'),
+            'avatar'   => $this->arrayItem($user['data']['user'], 'avatar'),
         ]);
     }
 }
