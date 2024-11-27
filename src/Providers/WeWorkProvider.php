@@ -159,7 +159,7 @@ class WeWorkProvider extends AbstractProvider implements ProviderInterface
         $url = add_query_arg(array_filter([
             'access_token' => $token->getToken(),
             'code'         => $this->getCode(),
-        ], 'https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo');
+        ], 'https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo'));
 
         $response = wp_remote_get($url);
 
